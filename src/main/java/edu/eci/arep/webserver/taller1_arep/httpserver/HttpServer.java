@@ -62,7 +62,7 @@ public class HttpServer {
                 in.read(bodyChars, 0, contentLength);
                 body = new String(bodyChars);
             }
-            manageRequest(firstLine,body,outputStream);
+            if(!firstLine.isEmpty()) manageRequest(firstLine,body,outputStream);
             outputStream.close();
             in.close();
             clientSocket.close();
@@ -85,8 +85,13 @@ public class HttpServer {
             String path = requestUri.getPath();
             String method = dividedUri[0];
             if(method.equals("GET") && path.startsWith("/app/tasks")) {
-                String param = requestUri.getQuery().split("=")[1];
-                getTasks(param, out);
+                String[] param = requestUri.getQuery().split("=");
+                if(param.length > 1){
+                    String paramValue = param[1];
+                    getTasks(paramValue, out);
+                }else{
+                    sendBadRequestResponse(out,"Missing filter parameter");
+                }
             }else if(method.equals("POST") && path.startsWith("/app/save")){
                     String taskName = "";
                     String taskDescription = "";
@@ -95,20 +100,12 @@ public class HttpServer {
                         String[] pair = value.split(":",2);
                         String key = pair[0].trim().replace("\"","").replace("{","").replace("}","");
                         String val = pair[1].trim().replace("\"","").replace("{","").replace("}","");
-                        if(key.equals("name")){
-                            taskName = val;
-                        }
-                        if(key.equals("description")){
-                            taskDescription = val;
-                        }
+                        if(key.equals("name")) taskName = val;
+                        if(key.equals("description")) taskDescription = val;
                     }
-                    if(!taskName.isEmpty() && !taskDescription.isEmpty()){
-                        saveTask(taskName, taskDescription,out);
-                    }else{
-                        String response = "HTTP/1.1 400 Bad Request\r\n";
-                        out.write(response.getBytes());
-                        out.flush();
-                    }
+                    if(!taskName.isEmpty() && !taskDescription.isEmpty()) saveTask(taskName, taskDescription,out);
+                    else sendBadRequestResponse(out,"Missing values, Task Name and Task Description are required");
+
             }else if(method.equals("GET") && (path.equals("/") || path.endsWith("html") || path.endsWith("js") || path.endsWith("css")
                     || path.endsWith("png") || path.endsWith("jpg") || path.endsWith("jpeg"))){
                 getResources(path, out);
@@ -117,12 +114,9 @@ public class HttpServer {
             }
         }catch (FileNotFoundException e){
             sendNotFoundResponse(out,e.getMessage());
-        }catch (IOException e) {
+        } catch (Exception e) {
             sendServerErrorResponse(out,e.getMessage());
-        }catch (Exception e) {
-            sendNotFoundResponse(out,e.getMessage());
         }
-
     }
     /**
      * Manage disk files.
@@ -247,6 +241,20 @@ public class HttpServer {
      * @param message details of the error
      * @throws IOException if an error occurs while writing to the output stream
      */
+    private static void sendBadRequestResponse(OutputStream out, String message) throws IOException {
+        String response = "HTTP/1.1 400 Bad Request\r\n"
+                + "Content-Type: text/plain\r\n"
+                + "\r\n"
+                + "400 Bad Request: " + message;
+        out.write(response.getBytes());
+        out.flush();
+    }
+    /**
+     * Send when a paramater is invalid.
+     * @param out the output stream used to send the response back to the client
+     * @param message details of the error
+     * @throws IOException if an error occurs while writing to the output stream
+     */
     private static void sendNotAllowedResponse(OutputStream out, String message) throws IOException {
         String response = "HTTP/1.1 405 Method Not Allowed\r\n"
                 + "Content-Type: text/plain\r\n"
@@ -305,7 +313,7 @@ public class HttpServer {
         out.flush();
     }
     /**
-     * Convert task object to json
+     * Convert task object to json string
      * @param id ID of the task
      * @param name name of the task
      * @param description description of the task

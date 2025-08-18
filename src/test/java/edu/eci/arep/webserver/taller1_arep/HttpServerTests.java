@@ -38,6 +38,11 @@ public class HttpServerTests {
         HttpURLConnection getConnection = urlConnection.createGetConnection("/");
         int responseCode = getConnection.getResponseCode();
         assertEquals("Should return 200 OK",200, responseCode);
+        getConnection.disconnect();
+        HttpURLConnection getConnectionWithFile = urlConnection.createGetConnection("/index.html");
+        int responseCodeWithFile = getConnectionWithFile.getResponseCode();
+        assertEquals("Should return 200 OK",200, responseCodeWithFile);
+        getConnectionWithFile.disconnect();
     }
     /*
      *Returns style.css file
@@ -47,6 +52,7 @@ public class HttpServerTests {
         HttpURLConnection getConnection = urlConnection.createGetConnection("/styles/style.css");
         int responseCode = getConnection.getResponseCode();
         assertEquals("Should return 200 OK",200, responseCode);
+        getConnection.disconnect();
     }
     /*
      *Returns script.js file
@@ -56,6 +62,7 @@ public class HttpServerTests {
         HttpURLConnection getConnection = urlConnection.createGetConnection("/scripts/script.js");
         int responseCode = getConnection.getResponseCode();
         assertEquals("Should return 200 OK",200, responseCode);
+        getConnection.disconnect();
     }
     /*
      *Returns image file
@@ -65,6 +72,7 @@ public class HttpServerTests {
         HttpURLConnection getConnection = urlConnection.createGetConnection("/images/logo.png");
         int responseCode = getConnection.getResponseCode();
         assertEquals("Should return 200 OK",200, responseCode);
+        getConnection.disconnect();
     }
     /*
      *Trying to get an unkown file
@@ -74,6 +82,7 @@ public class HttpServerTests {
         HttpURLConnection getConnection = urlConnection.createGetConnection("/prueba.html");
         int responseCode = getConnection.getResponseCode();
         assertEquals("Should return 404 Not Found",404, responseCode);
+        getConnection.disconnect();
     }
 
     /*
@@ -106,9 +115,8 @@ public class HttpServerTests {
         int responseCode = connection.getResponseCode();
         assertEquals("Should return 400 Bad Request", 400, responseCode);
         String responseBody = urlConnection.readResponse(connection);
-        assertFalse("Response should contain error about missing name",
+        assertTrue("Response should contain error about missing name",
                 responseBody.toLowerCase().contains("name"));
-
         connection.disconnect();
     }
 
@@ -123,7 +131,7 @@ public class HttpServerTests {
 
         int responseCode = connection.getResponseCode();
         System.out.println(responseCode);
-        assertTrue("Should return Bad request error",responseCode == 400);
+        assertEquals("Should return Bad request error",400,responseCode);
 
         connection.disconnect();
     }
@@ -149,7 +157,7 @@ public class HttpServerTests {
         getConnection.disconnect();
     }
     /*
-     *Get tasks ny filter name successfully
+     *Get tasks by filter name successfully
      */
     @Test
     public void testGetTasksByName() throws Exception {
@@ -165,13 +173,27 @@ public class HttpServerTests {
 
         String responseBody = urlConnection.readResponse(getConnection);
         String[] inner = responseBody.trim().substring(1, responseBody.length()-1).trim().split("},");
-        System.out.println( inner );
         assertTrue("Response should contain one task",inner.length == 1);;
         getConnection.disconnect();
     }
 
     /*
-     *Send and invalid method
+     *Trying to get tasks by sending an empty parameter
+     */
+    @Test
+    public void testGetTasksEmptyParam() throws Exception {
+        HttpURLConnection getConnection = urlConnection.createGetConnection("/app/tasks?filter=");
+
+        int responseCode = getConnection.getResponseCode();
+        assertEquals("Should return 400 Bad Request",400, responseCode);
+        String responseBody = urlConnection.readResponse(getConnection);
+        assertTrue("Response should contain error about missing parameter",
+                responseBody.toLowerCase().contains("filter"));
+        getConnection.disconnect();
+    }
+
+    /*
+     *Send an invalid method
      */
     @Test
     public void testMethodNotAllowed() throws Exception {

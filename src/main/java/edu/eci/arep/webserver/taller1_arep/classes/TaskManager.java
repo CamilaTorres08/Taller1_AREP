@@ -22,6 +22,6 @@ public class TaskManager {
         return tasks;
     }
     public List<Task> getTasksByName(String name) {
-        return this.tasks.stream().filter(x -> x.getName().contains(name)).collect(Collectors.toList());
+        return this.tasks.stream().filter(x -> x.getName().toLowerCase().contains(name.toLowerCase())).collect(Collectors.toList());
     }
 }
