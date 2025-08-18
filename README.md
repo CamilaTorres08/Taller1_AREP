@@ -93,7 +93,7 @@ Todos los recursos estáticos se encuentran almacenados en el directorio `src/ma
 
 <img src="ReadmeImages/FlujoTaller1AREP.png">
 
-### Metodos asincronicos
+### Comunicación asíncrona
 
 #### **POST**
 
@@ -139,7 +139,7 @@ Ejemplo de una petición utilizando un método no soportado:
 
 ## Pruebas
 
-Este taller incluye pruebas automatizadas usando JUnit para validar el funcionamiento del servidor web.
+Se incluye pruebas automatizadas usando JUnit para validar el funcionamiento del servidor web.
 El archivo de pruebas se encuentra en: 
 
 `src\test\java\edu\eci\arep\webserver\taller1_arep\HttpServerTests.java`
