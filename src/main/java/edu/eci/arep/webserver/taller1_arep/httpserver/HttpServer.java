@@ -92,9 +92,9 @@ public class HttpServer {
                     String taskDescription = "";
                     String[] values = body.split(",");
                     for(String value : values){
-                        String[] pair = value.split(":");
-                        String key = pair[0].trim().replace("\"","").replace("{","").replace("}","").replace(" ","");
-                        String val = pair[1].trim().replace("\"","").replace("{","").replace("}","").replace(" ","");;
+                        String[] pair = value.split(":",2);
+                        String key = pair[0].trim().replace("\"","").replace("{","").replace("}","");
+                        String val = pair[1].trim().replace("\"","").replace("{","").replace("}","");
                         if(key.equals("name")){
                             taskName = val;
                         }
@@ -102,7 +102,13 @@ public class HttpServer {
                             taskDescription = val;
                         }
                     }
-                    saveTask(taskName, taskDescription,out);
+                    if(!taskName.isEmpty() && !taskDescription.isEmpty()){
+                        saveTask(taskName, taskDescription,out);
+                    }else{
+                        String response = "HTTP/1.1 400 Bad Request\r\n";
+                        out.write(response.getBytes());
+                        out.flush();
+                    }
             }else if(method.equals("GET") && (path.equals("/") || path.endsWith("html") || path.endsWith("js") || path.endsWith("css")
                     || path.endsWith("png") || path.endsWith("jpg") || path.endsWith("jpeg"))){
                 getResources(path, out);
@@ -250,7 +256,7 @@ public class HttpServer {
         out.flush();
     }
     /**
-     * Send the tasks based on query param of the request
+     * Send a list of tasks based on query param of the request
      * @param out the output stream used to send the response back to the client
      * @param param name of the tasks
      * @throws IOException if an error occurs while writing to the output stream

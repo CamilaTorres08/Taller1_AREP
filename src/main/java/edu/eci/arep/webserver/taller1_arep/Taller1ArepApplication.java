@@ -2,7 +2,7 @@ package edu.eci.arep.webserver.taller1_arep;
 
 import edu.eci.arep.webserver.taller1_arep.httpserver.HttpServer;
 
-public class server {
+public class Taller1ArepApplication {
     public static void main(String[] args) {
         HttpServer httpServer = new HttpServer(35000);
         try{

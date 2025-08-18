@@ -6,13 +6,15 @@ import java.net.URI;
 import java.net.URL;
 
 public class URLConnection {
-    private static final int TEST_PORT = 35001;
-    private HttpURLConnection createPostConnection(String path, String jsonPayload) throws Exception {
+    int port;
+    public URLConnection(int port) {
+        this.port = port;
+    }
+    public HttpURLConnection createPostConnection(String path, String jsonPayload) throws Exception {
         HttpURLConnection connection = createConnection(path, "POST");
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setRequestProperty("Content-Length", String.valueOf(jsonPayload.length()));
 
-        // Enviar el payload
         try (OutputStream out = connection.getOutputStream()) {
             out.write(jsonPayload.getBytes("UTF-8"));
             out.flush();
@@ -20,12 +22,12 @@ public class URLConnection {
         return connection;
     }
 
-    private HttpURLConnection createGetConnection(String path) throws Exception {
+    public HttpURLConnection createGetConnection(String path) throws Exception {
         return createConnection(path, "GET");
     }
 
-    private HttpURLConnection createConnection(String path, String method) throws Exception {
-        URL url = new URL("http://localhost:" + TEST_PORT + path);
+    public HttpURLConnection createConnection(String path, String method) throws Exception {
+        URL url = new URL("http://localhost:" + port + path);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod(method);
         connection.setDoOutput(true);
@@ -34,7 +36,7 @@ public class URLConnection {
         return connection;
     }
 
-    private String readResponse(HttpURLConnection connection) throws Exception {
+    public String readResponse(HttpURLConnection connection) throws Exception {
         InputStream inputStream;
         try {
             inputStream = connection.getInputStream();

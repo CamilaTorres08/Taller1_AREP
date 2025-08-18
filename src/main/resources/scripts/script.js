@@ -1,18 +1,32 @@
 /*
 *Funcion para cargar las tareas
 */
-function loadTask(array) {
-    console.log(array);
-    let taskhtml = '';
-    for(let i=0; i<array.length;i++){
-        const task = array[i];
-        taskhtml+= `
-        <div class="task">
-            <h2>${task.name}</h2>   
-            <p>${task.description}</p>
-        </div>`
+function loadTasks() {
+    const searchValue = document.getElementById("taskSearch").value;
+    if(!searchValue){
+        document.getElementById("filter").innerText = "All";
+    }else{
+        document.getElementById("filter").innerText = searchValue;
     }
-    document.getElementById("task-container").innerHTML = taskhtml;
+    const value = document.getElementById("filter").innerText;
+    console.log("VALUE: ",value);
+    fetch("http://localhost:35000/app/tasks?name="+value,
+        {
+            method: "GET"
+        })
+        .then(res => res.json())
+        .then(data => {
+            let taskhtml = '';
+            for(let i=0; i<data.length;i++){
+                const task = data[i];
+                taskhtml+= `
+                <div class="task">
+                    <h2>${task.name}</h2>   
+                    <p>${task.description}</p>
+                </div>`
+            }
+            document.getElementById("task-container").innerHTML = taskhtml;
+        });
 }
 
 /*
@@ -33,7 +47,6 @@ function addTask(){
         alert('The description is too long');
         return;
     }
-    console.log("entrooo");
     fetch("http://localhost:35000/app/saveTask",
         {
             headers: {
@@ -47,31 +60,27 @@ function addTask(){
             })
         })
         .then(res => res.json())
-        .then(data => console.log(data));
-    //loadTask();
+        .then(data => {
+            console.log(data)
+            const element = document.getElementById("task-information");
+            element.classList.remove("hide");
+            element.classList.add("show");
+            let taskInfo = `
+                <h3>Last task added: </h3>
+                <ul>
+                    <li><p>Id: ${data.id}</p></li>
+                    <li><p>Name: ${data.name}</p></li>
+                    <li><p>Description: ${data.description}</p></li>
+                </ul>
+            `
+            element.innerHTML = taskInfo;
+        });
+    loadTasks();
 }
-
-function searchTasks(){
-    const searchValue = document.getElementById("taskSearch").value;
-    if(!searchValue){
-        document.getElementById("filter").innerText = "All";
-    }else{
-        document.getElementById("filter").innerText = searchValue;
-    }
-    const value = document.getElementById("filter").innerText;
-    console.log("VALUE: ",value);
-    fetch("http://localhost:35000/app/tasks?name="+value,
-        {
-            method: "GET"
-        })
-        .then(res => res.json())
-        .then(data => loadTask(data));
-}
-
 
 window.addTask = addTask;
-window.searchTasks = searchTasks;
+window.loadTasks = loadTasks;
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("filter").innerText = "All";
-    loadTask();
+    loadTasks();
 });

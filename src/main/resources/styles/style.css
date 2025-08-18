@@ -3,6 +3,7 @@ body{
     margin: 0;
     font-family: 'Montserrat', sans-serif;
     padding: 0;
+    overflow: hidden;
 }
 main{
     display: flex;
@@ -30,9 +31,10 @@ h1{
     padding: 3rem;
 }
 .task-form img{
-    width: 8rem;
-    height: 8rem;
+    width: 6rem;
+    height: 6rem;
     align-self: center;
+    padding: 0;
 }
 button{
     color: white;
@@ -151,13 +153,19 @@ input:focus,textarea:focus {
 .task:hover{
     border-color:  #bea0c5;
 }
+.hide{
+    display: none;
+}
+.show{
+    display: block;
+}
 
 #task-container{
     display: flex;
     flex-direction: column;
     gap:2rem;
     overflow-y: auto;
-    max-height: 79vh;
+    max-height: 78vh;
     padding-right: 0;
 }
 #task-container::-webkit-scrollbar {
@@ -182,4 +190,9 @@ input:focus,textarea:focus {
 #task-container {
     scrollbar-width: thin;
     scrollbar-color: #8d6596 rgba(141, 101, 150, 0.2);
+}
+#task-information{
+    border: 1px solid #2b0934;
+    border-radius: 20px;
+    padding: 0.5rem;
 }
