@@ -15,60 +15,13 @@ la aplicación.
 devolver la lista de tareas basado en el filtro de busqueda y el método **POST** permite crear una nueva tarea y retornar
 la nueva información de la tarea generada.
 
-De esta manera, el laboratorio introduce los fundamentos del funcionamiento de un servidor web, la manipulación de 
+De esta manera, se introduce los fundamentos del funcionamiento de un servidor web, la manipulación de 
 solicitudes HTTP y la integración entre cliente y servidor. 
 
 ## Arquitectura
-A continuación, se ilustra el diagrama de clases que refleja como está construido el servidor web
-
+La siguiente figura muestra el **diagrama de clases** que representa la estructura interna del servidor web.  
+En él se ilustran los componentes principales, sus responsabilidades y las relaciones entre ellos.
 <img src="ReadmeImages/ClasesTaller1AREP.png">
-
-## Funcionamiento
-
-Al correr el servidor, este abre un socket del cliente por el puerto 35000 y espera a recibir solicitudes.
-Al entrar al navegador, se realiza un solicitud GET HTTP solicitando por el recurso index.html
-el navegador mismo se encarga de hacer las peticiones necesarias para cargar los css y el javascript
-que se especifican en el archivo html. Los archivos solicitados se encuentran almacenados en 
-`src\main\resources`
-
-<img src="ReadmeImages/FlujoTaller1AREP.png">
-
-### Metodos asincronicos
-* **POST**
-
-    Para agregar una tarea, se llena el formulario que se encuentra a la izquierda y al dar click en el boton
-    'add' el cliente se encarga de llamar al recurso `http:/localhost:35000/app/tasks` y en el cuerpo del mensaje,
-    se envía un JSON con el nombre y descripción de la tarea, la siguiente imagen es un ejemplo de cuando se crea la tarea:
-    
-    <img src="ReadmeImages/img_2.png">
-    
-    Como observamos anteriormente, al agregar la tarea el servidor se encarga de retornar la información de la nueva tarea, junto
-    con el header application/json para indicar que retorna un JSON y el codigo de respuesta 200 OK. Finalmente 
-    se muestra en la aplicación la información de la ultima tarea añadida.
-* **GET**
-
-    Para obtener las tareas por nombre, se da click en el botón "search" ubicado junto a la barra de busqueda,
-    se hace un petición GET al servidor `http://localhost:35000/app/tasks?name="+value` donde value es el valor del input de busqueda.
-    El servidor se encargar de obtener el parametro y filtrar las tareas cuyo nombre contiene ese valor. Finalmente,
-    el servidor retorna la lista de tareas junto con el encabezado application/json y el codigo de respuesta 200 OK.
-    La siguiente imagen es un ejemplo para obtener las tareas con nombre "AREP":
-    <img src="ReadmeImages/img_3.png">
-    Para obtener todas las tareas basta con limpiar el input de la busqueda y volver a dar click para buscar:
-    <img src="ReadmeImages/img_4.png">
-
-* **Codigos de Respuesta**
-
-    El servidor maneja varios codigos de respuesta según la acción que se realice:
-    * 200 OK: Cuando el recurso finaliza correctamente su tarea.
-    * 404 Not Found: Se maneja cuando no existe el archivo especificado.
-    * 405 Method Not Allowed: Cuando el recurso solicitado no se encontró.
-    * 400 Bad Request: Cuando el parametro o cuerpo enviados no son validos o están incompletos. 
-    * 500 Internal Server Error: Cuando ocurrió una excepción no controlada.
-  Ejemplo cuando se llama a un recurso que no está guardado en disco:
-    <img src="ReadmeImages/img_5.png">
-  Ejemplo de cuando se llama a un metodo que no existe
-    <img src="ReadmeImages/img_6.png">
-
 
 ## Primeros Pasos
 
@@ -76,20 +29,36 @@ que se especifican en el archivo html. Los archivos solicitados se encuentran al
 
 Antes de comenzar, es necesario tener instalado lo siguiente en el entorno:
 
-* **Java Development Kit (JDK) 17 o superior**
+* **Java Development Kit (JDK) 21 o superior**
 
-    Verifica la versión de java
+  [Descargar JDK](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html)
+
+  Verifica la versión
 
     ```
     java -version
     ```
 * **Maven**
 
-  Facilita la compilación y depuración del proyecto
+  Construcción de gestión de dependencias -
+  [Instalar Maven](https://maven.apache.org/download.cgi)
+
+  Verifica la instalación 
+
+    ```
+    mvn -version
+    ```
 
 * **Git**
 
-  Control de versiones
+  Control de versiones -
+  [Descargar Git](https://git-scm.com/downloads)
+
+  Verifica la instalación
+
+    ```
+    git -version
+    ```
 
 ### Instalación
 
@@ -106,14 +75,67 @@ Antes de comenzar, es necesario tener instalado lo siguiente en el entorno:
     ```
     mvn exec:java
     ```
-   O directamente en la IDE dando click en *Run* sobre el archivo 
+   O directamente en la IDE dando click en *Run* sobre el archivo
 
-    `Taller1ArepApplication`
+   `Taller1ArepApplication`
 
 4. Abrir la aplicación en el navegador
     ```
     http://localhost:35000
     ```
+
+## Funcionamiento
+
+Al iniciar la aplicación, el servidor abre un **socket** en el puerto `35000` y queda a la espera de recibir solicitudes entrantes.  
+Cuando el usuario accede desde un navegador, se envía una petición **HTTP GET** solicitando el recurso `index.html`.  
+El propio navegador se encarga de realizar las solicitudes adicionales necesarias para cargar las hojas de estilo (CSS) y los scripts de JavaScript definidos en dicho archivo.  
+Todos los recursos estáticos se encuentran almacenados en el directorio `src/main/resources`.
+
+<img src="ReadmeImages/FlujoTaller1AREP.png">
+
+### Metodos asincronicos
+
+#### **POST**
+
+Para agregar una nueva tarea, el usuario completa el formulario ubicado en el panel izquierdo de la aplicación y hace clic en el botón **Add**.  
+El cliente realiza una petición **HTTP POST** al recurso: `http:/localhost:35000/app/tasks` y en el cuerpo del mensaje,
+se envía un JSON con el nombre y descripción de la tarea, la siguiente imagen es un ejemplo de cuando se crea la tarea:
+
+<img src="ReadmeImages/img_2.png">
+
+El servidor procesa la información, crea la nueva tarea y responde con el objeto JSON de la tarea creada, el encabezado
+`Content-Type: application/json` y el código de respuesta `200 OK`. Finalmente, la información de la nueva tarea es mostrada
+en la aplicación. 
+
+#### **GET**
+
+Para consultar tareas por nombre, el usuario utiliza la barra de búsqueda y hace clic en el botón **Search**.  
+El cliente realiza una petición **HTTP GET** al recurso: `http://localhost:35000/app/tasks?name="+value` 
+Donde `<value>` corresponde al texto ingresado en la búsqueda.  
+El servidor procesa el parámetro, filtra las tareas cuyo nombre contenga ese valor y devuelve la lista de tareas junto 
+con el encabezado `Content-Type: application/json` y el codigo de respuesta `200 OK`.
+
+Ejemplo consultando las tareas con nombre **“AREP”**:
+<img src="ReadmeImages/img_3.png">
+
+Para obtener **todas las tareas**, basta con limpiar el campo de búsqueda y volver a dar click en el botón de busqueda:      
+<img src="ReadmeImages/img_4.png">
+
+#### **Codigos de Respuesta**
+
+El servidor implementa diferentes códigos de estado HTTP según la acción realizada:
+
+* **200 OK**: El recurso se ejecutó correctamente.
+* **404 Not Found**: El archivo solicitado no existe.
+* **405 Method Not Allowed**: El método HTTP utilizado no está permitido para el recurso.
+* **400 Bad Request**: El cuerpo o parámetros enviados son inválidos o están incompletos.
+* **500 Internal Server Error**: Se produjo una excepción no controlada en el servidor.
+
+Ejemplo de una petición a un recurso inexistente en disco:
+<img src="ReadmeImages/img_5.png">
+Ejemplo de una petición utilizando un método no soportado:  
+<img src="ReadmeImages/img_6.png">
+
 
 ## Pruebas
 
